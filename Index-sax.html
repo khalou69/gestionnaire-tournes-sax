@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Tournes Musiciens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .logout-btn {
+            background: #e74c3c !important;
+            color: white !important;
+            margin-left: auto;
+            flex: none !important;
+            min-width: 120px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+            margin: 2px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .list-container {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .list-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .points-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .points-table th,
+        .points-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .points-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .points-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .points-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-color: #27ae60;
+            color: #155724;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+        
+        .period-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        
+        .service-type-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+        
+        .service-type-config label {
+            min-width: 150px;
+            margin: 0;
+        }
+        
+        .service-type-config input {
+            width: 80px;
+        }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 20px 15px; }
+            .header h1 { font-size: 1.8rem; }
+            .nav-tabs { flex-wrap: wrap; }
+            .tab-content { padding: 15px; }
+            .period-selector { 
+                flex-direction: column; 
+                align-items: stretch;
+            }
+            .period-selector .form-control {
+                width: 100% !important;
+            }
+            .settings-grid { 
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .list-item { 
+                flex-direction: column; 
+                gap: 10px; 
+                align-items: stretch;
+            }
+            .list-item > div {
+                width: 100%;
+            }
+            .btn { 
+                width: 100%; 
+                margin: 2px 0;
+            }
+            .btn-small { 
+                width: auto;
+                padding: 8px 12px;
+            }
+            .points-table {
+                font-size: 12px;
+            }
+            .points-table th,
+            .points-table td {
+                padding: 8px 4px;
+            }
+            .form-control {
+                font-size: 16px;
+            }
+            .card {
+                padding: 15px;
+            }
+            .service-type-config {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .service-type-config label {
+                min-width: auto;
+            }
+            .service-type-config input {
+                width: 100%;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            #instrumentSelect {
+                font-size: 16px;
+            }
+            .chart-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            #pointsChart {
+                min-width: 100%;
+                height: 300px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span id="headerIcon">🎷</span> Gestionnaire de Tournes</h1>
+            <p id="headerSubtitle" style="font-size: 1rem; color: #ffd700; margin: 5px 0;"></p>
+            <p>Gestion équitable des services musicaux</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Tableau de Bord</button>
+            <button class="nav-tab admin-only" onclick="showTab('musicians')">Musiciens</button>
+            <button class="nav-tab" onclick="showTab('services')">Services</button>
+            <button class="nav-tab admin-only" onclick="showTab('settings')">Configuration</button>
+            <button class="nav-tab admin-only logout-btn" onclick="logout()">🔒 Déconnexion</button>
+        </div>
+        
+        <div id="dashboard" class="tab-content active">
+            <div class="period-selector">
+                <label><strong>Période d'analyse :</strong></label>
+                <input type="date" id="startDate" class="form-control" style="width: auto;">
+                <span>à </span>
+                <input type="date" id="endDate" class="form-control" style="width: auto;">
+                <button class="btn btn-primary" onclick="updateDashboard()">Actualiser</button>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Répartition des Points</h3>
+                <table class="points-table">
+                    <thead>
+                        <tr>
+                            <th>Musicien</th>
+                            <th>Services Semaine</th>
+                            <th>Services Week-end</th>
+                            <th>Services Hors Heures</th>
+                            <th>Total Points</th>
+                            <th>Écart Moyen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pointsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #6c757d;">Aucune donnée pour la période sélectionnée</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="chart-container">
+                <h3>📈 Évolution des Points</h3>
+                <canvas id="pointsChart"></canvas>
+            </div>
+            
+            <div class="card admin-only">
+                <h3>📅 Export Agenda (ICS)</h3>
+                <div class="alert alert-info">
+                    <strong>ℹ️ Information :</strong> Exportez vos services au format ICS pour les importer dans Google Agenda, Outlook, Apple Calendar, etc.
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportAllServicesICS()">
+                        📤 Exporter Tous les Services
+                    </button>
+                    <button class="btn btn-success" onclick="exportPeriodServicesICS()">
+                        📊 Exporter la Période Actuelle
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="musicians" class="tab-content">
+            <div class="card">
+                <h3>👥 Ajouter un Musicien</h3>
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="musicianName">Nom du musicien</label>
+                        <input type="text" id="musicianName" class="form-control" placeholder="Ex: Pierre Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label for="musicianEmail">Email (optionnel)</label>
+                        <input type="email" id="musicianEmail" class="form-control" placeholder="pierre.dupont@email.com">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addMusician()">Ajouter</button>
+            </div>
+            
+            <div class="card">
+                <h3>🎵 Liste des Musiciens</h3>
+                <ul class="list-container" id="musicianList">
+                    <li style="text-align: center; color: #6c757d; padding: 20px;">Aucun musicien ajouté</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="services" class="tab-content">
+            <div class="card admin-only">
+                <h3>🎼 Créer un Service</h3>
+                <div class="form-group">
+                    <label for="serviceName">Nom du service</label>
+                    <input type="text" id="serviceName" class="form-control" placeholder="Ex: Concert du 20 septembre">
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="serviceDate">Date de début</label>
+                        <input type="date" id="serviceDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="departureTime">Heure du départ</label>
+                        <input type="time" id="departureTime" class="form-control" value="20:00">
+                    </div>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="serviceEndDate">Date de fin <small style="font-weight: normal; font-size: 0.8em;">(optionnel - pour les tournées)</small></label>
+                        <input type="date" id="serviceEndDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="returnTime">Heure de retour</label>
+                        <input type="time" id="returnTime" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="serviceType">Type de service</label>
+                        <select id="serviceType" class="form-control">
+                            <option value="semaine">Semaine</option>
+                            <option value="weekend">Week-end</option>
+                            <option value="hors_heures">Hors heures</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customPoints">Points personnalisés (optionnel)</label>
+                        <input type="number" id="customPoints" class="form-control" placeholder="Laisser vide pour utiliser la config par défaut">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Musiciens participants :</label>
+                    <div class="checkbox-group" id="participantCheckboxes">
+                        <p style="color: #6c757d;">Ajoutez d'abord des musiciens</p>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="addService()">Créer le Service</button>
+            </div>
+            
+            <div class="card">
+                <h3>📅 Historique des Services</h3>
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <button class="btn btn-primary" onclick="exportAllServicesICS()">
+                        📤 Exporter tous les services (ICS)
+                    </button>
+                    <button class="btn btn-success" onclick="toggleShowAllServices()" id="toggleServicesBtn">
+                        👁️ Voir tous les services
+                    </button>
+                </div>
+                <ul class="list-container" id="serviceList">
+                    <li style="text-align: center; color: #6c757d; padding: 20px;">Aucun service créé</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3>🎨 Personnalisation</h3>
+                <div class="form-group">
+                    <label for="instrumentSelect">Choisir un pupitre</label>
+                    <select id="instrumentSelect" class="form-control" onchange="selectInstrumentFromDropdown()">
+                        <option value="">-- Sélectionner --</option>
+                        <optgroup label="Pupitres">
+                            <option value="🪈|Flûtes">Flûtes (Flûte et Piccolo)</option>
+                            <option value="🎵|Hautbois">Hautbois (Hautbois et Cor anglais)</option>
+                            <option value="🎵|Clarinettes">Clarinettes (toutes clarinettes)</option>
+                            <option value="🎵|Bassons">Bassons</option>
+                            <option value="🎷|Saxophones">Saxophones (tous saxophones)</option>
+                            <option value="🎺|Trompettes">Trompettes (Trompette, Cornet, Bugle)</option>
+                            <option value="🎺|Clairons">Clairons (Clairon et Trompette de cavalerie)</option>
+                            <option value="🎺|Cors">Cors (Cor d'harmonie)</option>
+                            <option value="🎺|Trombones">Trombones</option>
+                            <option value="🎺|Basses">Basses (Basse, Euphonium, Tuba)</option>
+                            <option value="🥁|Percussions">Percussions</option>
+                            <option value="🎻|Cordes">Cordes</option>
+                            <option value="🎼|Ensemble">Ensemble (Quintette, Quatuor, OVAT, etc.)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="instrumentIcon">Icône personnalisée (emoji)</label>
+                        <input type="text" id="instrumentIcon" class="form-control" placeholder="🎷" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="instrumentName">Nom du pupitre/instrument</label>
+                        <input type="text" id="instrumentName" class="form-control" placeholder="Ex: Saxophones, Trompettes, Clarinettes...">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="updateInstrument()">💾 Enregistrer</button>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ Configuration des Points</h3>
+                <div class="alert alert-info">
+                    <strong>💡 Astuce :</strong> Personnalisez les points attribués selon le type de service.
+                </div>
+                
+                <div id="serviceTypesConfig"></div>
+                
+                <div class="card" style="background: #f1f3f4; margin-top: 20px;">
+                    <h4>➕ Ajouter un Nouveau Type</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="newServiceTypeName" class="form-control" placeholder="Ex: Tournée" style="width: 200px;">
+                        <input type="number" id="newServiceTypePoints" class="form-control" placeholder="Points" min="0" style="width: 100px;">
+                        <button class="btn btn-success" onclick="addServiceType()">Ajouter</button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveServiceTypesConfig()" style="margin-top: 20px;">💾 Sauvegarder Configuration</button>
+            </div>
+            
+            <div class="card">
+                <h3>🔒 Configuration de Sécurité</h3>
+                <div class="form-group">
+                    <label for="currentPassword">Mot de passe actuel</label>
+                    <input type="password" id="currentPassword" class="form-control" placeholder="Mot de passe actuel">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newPassword">Nouveau mot de passe</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Minimum 6 caractères">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmer le mot de passe</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirmer le mot de passe">
+                </div>
+                
+                <button class="btn btn-primary" onclick="changeAdminPassword()">🔑 Changer le Mot de Passe</button>
+            </div>
+            
+            <div class="card">
+                <h3>💾 Gestion des Données</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportData()">📤 Exporter JSON</button>
+                    <button class="btn btn-success" onclick="exportToPDF()">📄 Exporter PDF</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
+                    <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📥 Importer JSON</button>
+                    <button class="btn btn-danger" onclick="resetAllData()">🗑️ Réinitialiser</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let musicians = [];
+        let services = [];
+        let settings = {
+            serviceTypes: {
+                'semaine': { name: 'Service Semaine', points: 1 },
+                'weekend': { name: 'Service Week-end', points: 2 },
+                'hors_heures': { name: 'Service Hors Heures', points: 3 }
+            },
+            adminPassword: 'admin123',
+            instrumentIcon: '🎷',
+            instrumentName: ''
+        };
+        let isAdmin = false;
+        let showAllServices = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            checkAdminAccess();
+            initializeDates();
+            updateAllUI();
+            updateHeaderInstrument();
+        });
+
+        function checkAdminAccess() {
+            isAdmin = false;
+            updateUIBasedOnAccess();
+            addLoginButton();
+        }
+        
+        function addLoginButton() {
+            const header = document.querySelector('.header');
+            if (header && !document.getElementById('loginBtn')) {
+                const loginBtn = document.createElement('button');
+                loginBtn.id = 'loginBtn';
+                loginBtn.className = 'btn btn-primary';
+                loginBtn.style.cssText = 'position: absolute; top: 20px; right: 20px; z-index: 100;';
+                loginBtn.innerHTML = '🔑 Connexion Admin';
+                loginBtn.onclick = showLoginModal;
+                header.appendChild(loginBtn);
+            }
+        }
+
+        function showLoginModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade-in';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2 style="color: #2c3e50; margin-bottom: 20px;">🎷 Accès au Gestionnaire</h2>
+                    <p style="margin-bottom: 20px;">Entrez le mot de passe administrateur :</p>
+                    <input type="password" id="loginPassword" placeholder="Mot de passe admin" class="form-control" style="margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="tryAdminLogin()" class="btn btn-primary">Admin</button>
+                        <button onclick="continueAsGuest()" class="btn">Lecture seule</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            setTimeout(() => {
+                const passwordField = document.getElementById('loginPassword');
+                if (passwordField) {
+                    passwordField.focus();
+                    passwordField.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') tryAdminLogin();
+                    });
+                }
+            }, 100);
+        }
+
+        function tryAdminLogin() {
+            const password = document.getElementById('loginPassword').value;
+            if (password === settings.adminPassword) {
+                isAdmin = true;
+                closeLoginModal();
+                updateUIBasedOnAccess();
+                showAlert('Connecté en tant qu\'administrateur !', 'success');
+            } else {
+                showAlert('Mot de passe incorrect', 'danger');
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginPassword').focus();
+            }
+        }
+
+        function continueAsGuest() {
+            isAdmin = false;
+            closeLoginModal();
+            updateUIBasedOnAccess();
+            showAlert('Mode lecture seule activé', 'info');
+        }
+
+        function closeLoginModal() {
+            const modal = document.querySelector('.modal');
+            if (modal) modal.remove();
+        }
+
+        function updateUIBasedOnAccess() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = isAdmin ? 'block' : 'none';
+            });
+            
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.style.display = isAdmin ? 'none' : 'block';
+            }
+            
+            if (!isAdmin) {
+                showTab('dashboard');
+            }
+        }
+
+        function logout() {
+            if (confirm('Voulez-vous exporter une sauvegarde de vos données avant de vous déconnecter ?')) {
+                exportData();
+                setTimeout(() => {
+                    isAdmin = false;
+                    updateUIBasedOnAccess();
+                    showAlert('Déconnecté - Données sauvegardées', 'success');
+                    showTab('dashboard');
+                }, 500);
+            } else {
+                if (confirm('Êtes-vous sûr de vouloir vous déconnecter sans sauvegarder ?')) {
+                    isAdmin = false;
+                    updateUIBasedOnAccess();
+                    showAlert('Déconnecté', 'info');
+                    showTab('dashboard');
+                }
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) targetTab.classList.add('active');
+            
+            const navButtons = document.querySelectorAll('.nav-tab:not(.logout-btn)');
+            navButtons.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(tabName)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            if (tabName === 'dashboard') {
+                setTimeout(() => updateDashboard(), 100);
+            }
+        }
+
+        function loadDemo() {
+            musicians = [
+                { id: 1, name: 'Pierre Martin', email: 'pierre@email.com', active: true },
+                { id: 2, name: 'Sophie Dubois', email: 'sophie@email.com', active: true },
+                { id: 3, name: 'Lucas Bernard', email: '', active: true },
+                { id: 4, name: 'Marie Petit', email: 'marie@email.com', active: true }
+            ];
+            
+            const today = new Date();
+            services = [
+                {
+                    id: 1,
+                    name: 'Concert de rentrée',
+                    date: today.toISOString().split('T')[0],
+                    time: '20:00',
+                    duration: 2,
+                    type: 'weekend',
+                    points: 2,
+                    participants: [1, 2, 3],
+                    created: new Date().toISOString()
+                }
+            ];
+            
+            updateAllUI();
+            autoSave();
+            showAlert('Données de test chargées !', 'success');
+        }
+
+        function exportToPDF() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            const filteredServices = services.filter(service => {
+                const serviceDate = new Date(service.date);
+                return serviceDate >= startDate && serviceDate <= endDate;
+            });
+            
+            const musicianStats = {};
+            musicians.forEach(musician => {
+                musicianStats[musician.id] = {
+                    name: musician.name,
+                    email: musician.email,
+                    total: 0,
+                    nbServices: 0,
+                    weekendServices: 0
+                };
+            });
+            
+            filteredServices.forEach(service => {
+                service.participants.forEach(musicianId => {
+                    if (musicianStats[musicianId]) {
+                        musicianStats[musicianId].total += service.points;
+                        musicianStats[musicianId].nbServices += 1;
+                        if (service.type === 'weekend') {
+                            musicianStats[musicianId].weekendServices += 1;
+                        }
+                    }
+                });
+            });
+            
+            const sortedStats = Object.values(musicianStats).sort((a, b) => b.total - a.total);
+            const minPoints = Math.min(...sortedStats.map(s => s.total));
+            const maxPoints = Math.max(...sortedStats.map(s => s.total));
+            
+            // Créer le rapport étape par étape
+            const newWindow = window.open('', '_blank');
+            
+            // HTML de base
+            let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rapport PDF</title>';
+            html += '<style>body{font-family:Arial;font-size:11px;margin:20px;}';
+            html += '.title{font-size:18px;text-align:center;border-bottom:3px solid #6C7CE7;padding-bottom:10px;}';
+            html += 'table{width:100%;border-collapse:collapse;margin:20px 0;}';
+            html += 'th{background:#6C7CE7;color:white;padding:10px;text-align:center;border:1px solid #5A6AD1;}';
+            html += 'td{padding:8px;text-align:center;border:1px solid #ddd;}';
+            html += '.name-col{text-align:left !important;padding-left:15px !important;}';
+            html += '.email-col{text-align:left !important;padding-left:15px !important;}';
+            html += '.min-points{color:#e74c3c;font-weight:bold;}';
+            html += '.max-points{color:#3498db;font-weight:bold;}';
+            html += '</style></head><body>';
+            
+            // Contenu
+            html += '<div class="title">Rapport de Gestion des Tournes</div>';
+            html += '<p>Periode: ' + startDate.toLocaleDateString('fr-FR') + ' vers ' + endDate.toLocaleDateString('fr-FR') + '</p>';
+            html += '<p>Genere le: ' + new Date().toLocaleDateString('fr-FR') + '</p>';
+            html += '<p>Musiciens: ' + musicians.length + ' - Services: ' + filteredServices.length + '</p>';
+            
+            // Tableau
+            html += '<h2 style="color:#6C7CE7;">Tableau Recapitulatif</h2>';
+            html += '<table><thead><tr><th>Musicien</th><th>Nb Services</th><th>Points</th><th>Weekends</th><th>Email</th></tr></thead><tbody>';
+            
+            sortedStats.forEach(stats => {
+                let nameClass = '';
+                if (stats.total === minPoints && stats.total < maxPoints) {
+                    nameClass = 'min-points';
+                } else if (stats.total === maxPoints && stats.total > minPoints) {
+                    nameClass = 'max-points';
+                }
+                
+                html += '<tr>';
+                html += '<td class="name-col ' + nameClass + '"><strong>' + stats.name + '</strong></td>';
+                html += '<td>' + stats.nbServices + '</td>';
+                html += '<td><strong>' + stats.total + '</strong></td>';
+                html += '<td>' + stats.weekendServices + '</td>';
+                html += '<td class="email-col">' + (stats.email || '-') + '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            html += '</body></html>';
+            
+            newWindow.document.write(html);
+            newWindow.document.close();
+            
+            showAlert('Rapport PDF basique généré - Testez Ctrl+P pour imprimer', 'success');
+        }
+
+        function selectInstrumentFromDropdown() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const select = document.getElementById('instrumentSelect');
+            const value = select.value;
+            
+            if (!value) return;
+            
+            const [icon, name] = value.split('|');
+            
+            document.getElementById('instrumentIcon').value = icon;
+            document.getElementById('instrumentName').value = name;
+            
+            settings.instrumentIcon = icon;
+            settings.instrumentName = name;
+            
+            updateHeaderInstrument();
+            autoSave();
+            showAlert(`${name} sélectionné !`, 'success');
+            
+            // Réinitialiser le menu déroulant
+            select.value = '';
+        }
+        
+        function selectInstrument(icon, name) {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            document.getElementById('instrumentIcon').value = icon;
+            document.getElementById('instrumentName').value = name;
+            
+            settings.instrumentIcon = icon;
+            settings.instrumentName = name;
+            
+            updateHeaderInstrument();
+            autoSave();
+            showAlert(`${name} sélectionné !`, 'success');
+        }
+        
+        function updateInstrument() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const icon = document.getElementById('instrumentIcon').value.trim();
+            const name = document.getElementById('instrumentName').value.trim();
+            
+            if (icon) {
+                settings.instrumentIcon = icon;
+            }
+            
+            settings.instrumentName = name;
+            
+            updateHeaderInstrument();
+            autoSave();
+            showAlert('Instrument personnalisé !', 'success');
+        }
+        
+        function updateHeaderInstrument() {
+            const headerIcon = document.getElementById('headerIcon');
+            const headerSubtitle = document.getElementById('headerSubtitle');
+            
+            if (headerIcon) {
+                headerIcon.textContent = settings.instrumentIcon || '🎷';
+            }
+            
+            if (headerSubtitle) {
+                if (settings.instrumentName) {
+                    headerSubtitle.textContent = `Pupitre de ${settings.instrumentName}`;
+                    headerSubtitle.style.display = 'block';
+                } else {
+                    headerSubtitle.style.display = 'none';
+                }
+            }
+            
+            // Mettre à jour les champs du formulaire
+            const iconInput = document.getElementById('instrumentIcon');
+            const nameInput = document.getElementById('instrumentName');
+            if (iconInput) iconInput.value = settings.instrumentIcon || '🎷';
+            if (nameInput) nameInput.value = settings.instrumentName || '';
+        }
+
+        function updateAllUI() {
+            updateMusiciansList();
+            updateServicesList();
+            updateParticipantCheckboxes();
+            updateServiceTypeSelect();
+            updateServiceTypesConfigUI();
+            updateDashboard();
+            updateHeaderInstrument();
+        }
+
+        function updateDashboard() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            if (!startDateInput || !endDateInput || !startDateInput.value || !endDateInput.value) {
+                return;
+            }
+            
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            const filteredServices = services.filter(service => {
+                const serviceDate = new Date(service.date);
+                return serviceDate >= startDate && serviceDate <= endDate;
+            });
+            
+            const musicianStats = {};
+            musicians.forEach(musician => {
+                musicianStats[musician.id] = {
+                    name: musician.name,
+                    semaine: 0,
+                    weekend: 0,
+                    hors_heures: 0,
+                    total: 0
+                };
+            });
+            
+            filteredServices.forEach(service => {
+                service.participants.forEach(musicianId => {
+                    if (musicianStats[musicianId]) {
+                        musicianStats[musicianId][service.type] = (musicianStats[musicianId][service.type] || 0) + 1;
+                        musicianStats[musicianId].total += service.points;
+                    }
+                });
+            });
+            
+            const totals = Object.values(musicianStats).map(s => s.total);
+            const average = totals.length > 0 ? totals.reduce((a, b) => a + b, 0) / totals.length : 0;
+            
+            updatePointsTable(musicianStats, average);
+            updateChart(musicianStats);
+        }
+
+        function updatePointsTable(musicianStats, average) {
+            const tbody = document.getElementById('pointsTableBody');
+            if (!tbody) return;
+            
+            const statsArray = Object.values(musicianStats);
+            if (statsArray.length === 0 || statsArray.every(s => s.total === 0)) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">Aucune donnée</td></tr>';
+            } else {
+                tbody.innerHTML = statsArray
+                    .sort((a, b) => b.total - a.total)
+                    .map(stats => {
+                        const ecart = stats.total - average;
+                        const ecartColor = ecart > 0 ? '#27ae60' : ecart < 0 ? '#e74c3c' : '#6c757d';
+                        return `
+                            <tr>
+                                <td><strong>${stats.name}</strong></td>
+                                <td>${stats.semaine}</td>
+                                <td>${stats.weekend}</td>
+                                <td>${stats.hors_heures}</td>
+                                <td><strong>${stats.total}</strong></td>
+                                <td style="color: ${ecartColor};">
+                                    ${ecart > 0 ? '+' : ''}${ecart.toFixed(1)}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+            }
+        }
+
+        function updateChart(musicianStats) {
+            const canvas = document.getElementById('pointsChart');
+            if (!canvas) return;
+            
+            // Adapter la taille du canvas à l'écran
+            const container = canvas.parentElement;
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                canvas.width = container.offsetWidth - 40;
+                canvas.height = 300;
+            } else {
+                canvas.width = 800;
+                canvas.height = 400;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const musicians = Object.values(musicianStats);
+            if (musicians.length === 0 || musicians.every(m => m.total === 0)) {
+                ctx.fillStyle = '#6c757d';
+                ctx.font = isMobile ? '14px Arial' : '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Aucune donnée à afficher', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            const padding = isMobile ? 40 : 60;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+            const barWidth = chartWidth / musicians.length * 0.8;
+            const maxPoints = Math.max(...musicians.map(m => m.total), 1);
+            
+            musicians.forEach((musician, index) => {
+                const barHeight = (musician.total / maxPoints) * chartHeight;
+                const x = padding + (chartWidth / musicians.length) * index + (chartWidth / musicians.length - barWidth) / 2;
+                const y = padding + chartHeight - barHeight;
+                
+                ctx.fillStyle = '#667eea';
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                ctx.fillStyle = '#2c3e50';
+                ctx.font = isMobile ? '10px Arial' : '12px Arial';
+                ctx.textAlign = 'center';
+                
+                // Afficher le nom (tronqué si mobile)
+                let displayName = musician.name;
+                if (isMobile && displayName.length > 10) {
+                    displayName = displayName.substring(0, 8) + '...';
+                }
+                ctx.fillText(displayName, x + barWidth / 2, canvas.height - padding + 20);
+                ctx.fillText(musician.total.toString(), x + barWidth / 2, y - 5);
+            });
+            
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + chartHeight);
+            ctx.lineTo(padding + chartWidth, padding + chartHeight);
+            ctx.stroke();
+        }
+
+        function addMusician() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const name = document.getElementById('musicianName').value.trim();
+            const email = document.getElementById('musicianEmail').value.trim();
+            
+            if (!name) {
+                showAlert('Veuillez saisir un nom de musicien', 'danger');
+                return;
+            }
+            
+            musicians.push({
+                id: Date.now(),
+                name: name,
+                email: email,
+                active: true
+            });
+            
+            document.getElementById('musicianName').value = '';
+            document.getElementById('musicianEmail').value = '';
+            
+            updateMusiciansList();
+            updateParticipantCheckboxes();
+            autoSave();
+            showAlert('Musicien ajouté avec succès !', 'success');
+        }
+
+        function removeMusician(id) {
+            if (!isAdmin) return;
+            if (confirm('Supprimer ce musicien ?')) {
+                musicians = musicians.filter(m => m.id !== id);
+                updateMusiciansList();
+                updateParticipantCheckboxes();
+                autoSave();
+                showAlert('Musicien supprimé', 'success');
+            }
+        }
+
+        function editService(serviceId) {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const service = services.find(s => s.id === serviceId);
+            if (!service) {
+                showAlert('Service non trouvé', 'danger');
+                return;
+            }
+            
+            // Basculer sur l'onglet Services et scroller vers le formulaire
+            showTab('services');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Remplir le formulaire
+            document.getElementById('serviceName').value = service.name;
+            document.getElementById('serviceDate').value = service.date;
+            document.getElementById('serviceEndDate').value = service.endDate || '';
+            document.getElementById('departureTime').value = service.departureTime || service.time || '20:00';
+            document.getElementById('returnTime').value = service.returnTime || '';
+            document.getElementById('serviceType').value = service.type;
+            document.getElementById('customPoints').value = service.points;
+            
+            // Cocher les participants
+            document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = service.participants.includes(parseInt(checkbox.value));
+            });
+            
+            // Changer le bouton pour indiquer la modification
+            const submitBtn = document.querySelector('#services .btn-success');
+            if (submitBtn) {
+                submitBtn.innerHTML = '💾 Enregistrer les modifications';
+                submitBtn.onclick = function() { updateService(serviceId); };
+            }
+            
+            showAlert('Service chargé pour modification', 'info');
+        }
+        
+        function updateService(serviceId) {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const name = document.getElementById('serviceName').value.trim();
+            const date = document.getElementById('serviceDate').value;
+            const endDate = document.getElementById('serviceEndDate').value;
+            const departureTime = document.getElementById('departureTime').value;
+            const returnTime = document.getElementById('returnTime').value;
+            const type = document.getElementById('serviceType').value;
+            const customPoints = document.getElementById('customPoints').value;
+            
+            if (!name || !date) {
+                showAlert('Veuillez remplir le nom et la date de début du service', 'danger');
+                return;
+            }
+            
+            if (endDate && new Date(endDate) < new Date(date)) {
+                showAlert('La date de fin doit être après la date de début', 'danger');
+                return;
+            }
+            
+            const participants = [];
+            document.querySelectorAll('#participantCheckboxes input[type="checkbox"]:checked').forEach(checkbox => {
+                participants.push(parseInt(checkbox.value));
+            });
+            
+            if (participants.length === 0) {
+                showAlert('Sélectionnez au moins un musicien participant', 'danger');
+                return;
+            }
+            
+            let points;
+            if (customPoints) {
+                points = parseInt(customPoints);
+            } else {
+                points = settings.serviceTypes[type]?.points || 1;
+            }
+            
+            // Trouver et mettre à jour le service
+            const serviceIndex = services.findIndex(s => s.id === serviceId);
+            if (serviceIndex !== -1) {
+                services[serviceIndex] = {
+                    ...services[serviceIndex],
+                    name: name,
+                    date: date,
+                    endDate: endDate,
+                    time: departureTime || '20:00',
+                    departureTime: departureTime || '20:00',
+                    returnTime: returnTime,
+                    duration: 2,
+                    type: type,
+                    points: points,
+                    participants: participants
+                };
+                
+                // Réinitialiser le formulaire
+                document.getElementById('serviceName').value = '';
+                document.getElementById('serviceDate').value = '';
+                document.getElementById('serviceEndDate').value = '';
+                document.getElementById('departureTime').value = '20:00';
+                document.getElementById('returnTime').value = '';
+                document.getElementById('customPoints').value = '';
+                document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+                
+                // Restaurer le bouton original
+                const submitBtn = document.querySelector('#services .btn-success');
+                if (submitBtn) {
+                    submitBtn.innerHTML = 'Créer le Service';
+                    submitBtn.onclick = addService;
+                }
+                
+                updateServicesList();
+                autoSave();
+                showAlert('Service modifié avec succès !', 'success');
+            } else {
+                showAlert('Erreur lors de la modification', 'danger');
+            }
+        }
+
+        function addService() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const name = document.getElementById('serviceName').value.trim();
+            const date = document.getElementById('serviceDate').value;
+            const endDate = document.getElementById('serviceEndDate').value;
+            const departureTime = document.getElementById('departureTime').value;
+            const returnTime = document.getElementById('returnTime').value;
+            const type = document.getElementById('serviceType').value;
+            const customPoints = document.getElementById('customPoints').value;
+            
+            if (!name || !date) {
+                showAlert('Veuillez remplir le nom et la date de début du service', 'danger');
+                return;
+            }
+            
+            if (endDate && new Date(endDate) < new Date(date)) {
+                showAlert('La date de fin doit être après la date de début', 'danger');
+                return;
+            }
+            
+            const participants = [];
+            document.querySelectorAll('#participantCheckboxes input[type="checkbox"]:checked').forEach(checkbox => {
+                participants.push(parseInt(checkbox.value));
+            });
+            
+            if (participants.length === 0) {
+                showAlert('Sélectionnez au moins un musicien participant', 'danger');
+                return;
+            }
+            
+            let points;
+            if (customPoints) {
+                points = parseInt(customPoints);
+            } else {
+                points = settings.serviceTypes[type]?.points || 1;
+            }
+            
+            services.push({
+                id: Date.now(),
+                name: name,
+                date: date,
+                endDate: endDate,
+                time: departureTime || '20:00',
+                departureTime: departureTime || '20:00',
+                returnTime: returnTime,
+                duration: 2,
+                type: type,
+                points: points,
+                participants: participants,
+                created: new Date().toISOString()
+            });
+            
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDate').value = '';
+            document.getElementById('serviceEndDate').value = '';
+            document.getElementById('departureTime').value = '20:00';
+            document.getElementById('returnTime').value = '';
+            document.getElementById('customPoints').value = '';
+            document.querySelectorAll('#participantCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            updateServicesList();
+            autoSave();
+            showAlert('Service créé avec succès !', 'success');
+        }
+
+        function removeService(id) {
+            if (!isAdmin) return;
+            if (confirm('Supprimer ce service ?')) {
+                services = services.filter(s => s.id !== id);
+                updateServicesList();
+                autoSave();
+                showAlert('Service supprimé', 'success');
+            }
+        }
+
+        function exportData() { 
+            const data = {
+                musicians,
+                services,
+                settings,
+                exported: new Date().toISOString(),
+                version: '2.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tournes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Données exportées !', 'success');
+        }
+        
+        function importData() { 
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.musicians && data.services && data.settings) {
+                        musicians = data.musicians;
+                        services = data.services;
+                        settings = { ...settings, ...data.settings };
+                        
+                        updateAllUI();
+                        autoSave();
+                        showAlert('Données importées !', 'success');
+                    } else {
+                        showAlert('Fichier invalide', 'danger');
+                    }
+                } catch (error) {
+                    showAlert('Erreur lors de l\'importation', 'danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function resetAllData() { 
+            if (confirm('⚠️ Supprimer toutes les données ?')) {
+                if (confirm('Dernière confirmation ?')) {
+                    musicians = [];
+                    services = [];
+                    settings = {
+                        serviceTypes: {
+                            'semaine': { name: 'Service Semaine', points: 1 },
+                            'weekend': { name: 'Service Week-end', points: 2 },
+                            'hors_heures': { name: 'Service Hors Heures', points: 3 }
+                        },
+                        adminPassword: 'admin123'
+                    };
+                    
+                    updateAllUI();
+                    autoSave();
+                    showAlert('Données supprimées', 'success');
+                }
+            }
+        }
+        
+        function changeAdminPassword() { 
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            
+            if (!current || !newPass || !confirm) {
+                showAlert('Remplissez tous les champs', 'danger');
+                return;
+            }
+            
+            if (current !== settings.adminPassword) {
+                showAlert('Mot de passe actuel incorrect', 'danger');
+                return;
+            }
+            
+            if (newPass.length < 6) {
+                showAlert('Le mot de passe doit contenir au moins 6 caractères', 'danger');
+                return;
+            }
+            
+            if (newPass !== confirm) {
+                showAlert('Les mots de passe ne correspondent pas', 'danger');
+                return;
+            }
+            
+            settings.adminPassword = newPass;
+            autoSave();
+            
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            showAlert('Mot de passe changé !', 'success');
+        }
+
+        function exportAllServicesICS() { 
+            if (services.length === 0) {
+                showAlert('Aucun service à exporter', 'info');
+                return;
+            }
+            
+            let icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Gestionnaire de Tournes//FR\n`;
+            
+            services.forEach(service => {
+                const safeName = (service.name || 'Service').replace(/[,;]/g, '');
+                const participants = service.participants
+                    .map(id => musicians.find(m => m.id === id)?.name || 'Musicien')
+                    .join(', ');
+                
+                const startTime = (service.departureTime || service.time || '20:00').replace(':', '');
+                
+                // Calculer la durée ou utiliser par défaut
+                let duration = 'PT2H';
+                if (service.departureTime && service.returnTime) {
+                    const [depH, depM] = service.departureTime.split(':').map(Number);
+                    const [retH, retM] = service.returnTime.split(':').map(Number);
+                    const durationMinutes = (retH * 60 + retM) - (depH * 60 + depM);
+                    if (durationMinutes > 0) {
+                        const hours = Math.floor(durationMinutes / 60);
+                        const minutes = durationMinutes % 60;
+                        duration = `PT${hours}H${minutes > 0 ? minutes + 'M' : ''}`;
+                    }
+                }
+                
+                icsContent += `BEGIN:VEVENT\n`;
+                icsContent += `UID:${service.id}@tournesmusiciens\n`;
+                icsContent += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
+                icsContent += `DTSTART:${service.date.replace(/-/g, '')}T${startTime}00\n`;
+                
+                // Si date de fin existe (tournée), on crée un événement qui s'étend
+                if (service.endDate) {
+                    const endTime = (service.returnTime || service.time || '20:00').replace(':', '');
+                    icsContent += `DTEND:${service.endDate.replace(/-/g, '')}T${endTime}00\n`;
+                } else {
+                    icsContent += `DURATION:${duration}\n`;
+                }
+                
+                icsContent += `SUMMARY:${safeName}\n`;
+                icsContent += `DESCRIPTION:Points: ${service.points} - Participants: ${participants}\n`;
+                icsContent += `END:VEVENT\n`;
+            });
+            
+            icsContent += `END:VCALENDAR`;
+            
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tous_services.ics`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Services exportés en ICS !', 'success');
+        }
+        
+        function exportPeriodServicesICS() { 
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            const filteredServices = services.filter(service => {
+                const serviceDate = new Date(service.date);
+                return serviceDate >= startDate && serviceDate <= endDate;
+            });
+            
+            if (filteredServices.length === 0) {
+                showAlert('Aucun service dans cette période', 'info');
+                return;
+            }
+            
+            let icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Gestionnaire de Tournes//FR\n`;
+            
+            filteredServices.forEach(service => {
+                const safeName = (service.name || 'Service').replace(/[,;]/g, '');
+                const participants = service.participants
+                    .map(id => musicians.find(m => m.id === id)?.name || 'Musicien')
+                    .join(', ');
+                
+                const startTime = (service.departureTime || service.time || '20:00').replace(':', '');
+                
+                // Calculer la durée ou utiliser par défaut
+                let duration = 'PT2H';
+                if (service.departureTime && service.returnTime) {
+                    const [depH, depM] = service.departureTime.split(':').map(Number);
+                    const [retH, retM] = service.returnTime.split(':').map(Number);
+                    const durationMinutes = (retH * 60 + retM) - (depH * 60 + depM);
+                    if (durationMinutes > 0) {
+                        const hours = Math.floor(durationMinutes / 60);
+                        const minutes = durationMinutes % 60;
+                        duration = `PT${hours}H${minutes > 0 ? minutes + 'M' : ''}`;
+                    }
+                }
+                
+                icsContent += `BEGIN:VEVENT\n`;
+                icsContent += `UID:${service.id}@tournesmusiciens\n`;
+                icsContent += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
+                icsContent += `DTSTART:${service.date.replace(/-/g, '')}T${startTime}00\n`;
+                
+                // Si date de fin existe (tournée), on crée un événement qui s'étend
+                if (service.endDate) {
+                    const endTime = (service.returnTime || service.time || '20:00').replace(':', '');
+                    icsContent += `DTEND:${service.endDate.replace(/-/g, '')}T${endTime}00\n`;
+                } else {
+                    icsContent += `DURATION:${duration}\n`;
+                }
+                
+                icsContent += `SUMMARY:${safeName}\n`;
+                icsContent += `DESCRIPTION:Points: ${service.points} - Participants: ${participants}\n`;
+                icsContent += `END:VEVENT\n`;
+            });
+            
+            icsContent += `END:VCALENDAR`;
+            
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `services_periode.ics`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Services de la période exportés !', 'success');
+        }
+
+        function exportServiceToICS(serviceId) {
+            const service = services.find(s => s.id === serviceId);
+            if (!service) {
+                showAlert('Service non trouvé', 'danger');
+                return;
+            }
+            
+            const safeName = (service.name || 'Service').replace(/[,;]/g, '').replace(/[^a-zA-Z0-9]/g, '_');
+            const participants = service.participants
+                .map(id => musicians.find(m => m.id === id)?.name || 'Musicien')
+                .join(', ');
+            
+            const startTime = (service.departureTime || service.time || '20:00').replace(':', '');
+            
+            // Calculer la durée ou utiliser par défaut
+            let duration = 'PT2H';
+            if (service.departureTime && service.returnTime) {
+                const [depH, depM] = service.departureTime.split(':').map(Number);
+                const [retH, retM] = service.returnTime.split(':').map(Number);
+                const durationMinutes = (retH * 60 + retM) - (depH * 60 + depM);
+                if (durationMinutes > 0) {
+                    const hours = Math.floor(durationMinutes / 60);
+                    const minutes = durationMinutes % 60;
+                    duration = `PT${hours}H${minutes > 0 ? minutes + 'M' : ''}`;
+                }
+            }
+            
+            let icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Gestionnaire de Tournes//FR\n`;
+            icsContent += `BEGIN:VEVENT\n`;
+            icsContent += `UID:${service.id}@tournesmusiciens\n`;
+            icsContent += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
+            icsContent += `DTSTART:${service.date.replace(/-/g, '')}T${startTime}00\n`;
+            
+            // Si date de fin existe (tournée), on crée un événement qui s'étend
+            if (service.endDate) {
+                const endTime = (service.returnTime || service.time || '20:00').replace(':', '');
+                icsContent += `DTEND:${service.endDate.replace(/-/g, '')}T${endTime}00\n`;
+            } else {
+                icsContent += `DURATION:${duration}\n`;
+            }
+            
+            icsContent += `SUMMARY:${service.name}\n`;
+            icsContent += `DESCRIPTION:Points: ${service.points} - Participants: ${participants}\n`;
+            icsContent += `END:VEVENT\n`;
+            icsContent += `END:VCALENDAR`;
+            
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeName}.ics`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Fichier ICS téléchargé !', 'success');
+        }
+
+        function updateMusiciansList() {
+            const list = document.getElementById('musicianList');
+            if (!list) return;
+            
+            if (musicians.length === 0) {
+                list.innerHTML = '<li style="text-align: center; color: #6c757d; padding: 20px;">Aucun musicien ajouté</li>';
+            } else {
+                list.innerHTML = musicians.map(musician => `
+                    <li class="list-item">
+                        <div>
+                            <strong>${musician.name}</strong>
+                            ${musician.email ? `<br><small>📧 ${musician.email}</small>` : ''}
+                        </div>
+                        <button class="btn btn-danger btn-small" onclick="removeMusician(${musician.id})" type="button">
+                            Supprimer
+                        </button>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function toggleShowAllServices() {
+            showAllServices = !showAllServices;
+            const btn = document.getElementById('toggleServicesBtn');
+            if (btn) {
+                if (showAllServices) {
+                    btn.innerHTML = '🔙 Masquer les services passés';
+                    btn.className = 'btn btn-danger';
+                } else {
+                    btn.innerHTML = '👁️ Voir tous les services';
+                    btn.className = 'btn btn-success';
+                }
+            }
+            updateServicesList();
+        }
+
+        function updateServicesList() {
+            const list = document.getElementById('serviceList');
+            if (!list) return;
+            
+            if (services.length === 0) {
+                list.innerHTML = '<li style="text-align: center; color: #6c757d; padding: 20px;">Aucun service créé</li>';
+            } else {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                let sortedServices = [...services].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Filtrer les services passés si showAllServices est false
+                if (!showAllServices) {
+                    sortedServices = sortedServices.filter(service => {
+                        const serviceDate = new Date(service.date);
+                        serviceDate.setHours(0, 0, 0, 0);
+                        return serviceDate >= today;
+                    });
+                }
+                
+                if (sortedServices.length === 0) {
+                    list.innerHTML = '<li style="text-align: center; color: #6c757d; padding: 20px;">Aucun service à venir</li>';
+                    return;
+                }
+                
+                list.innerHTML = sortedServices.map(service => {
+                    const participantNames = service.participants
+                        .map(id => musicians.find(m => m.id === id)?.name || 'Musicien supprimé')
+                        .join(', ');
+                    
+                    const serviceTypeName = settings.serviceTypes[service.type]?.name || service.type;
+                    
+                    let dateDisplay = new Date(service.date).toLocaleDateString('fr-FR');
+                    if (service.endDate) {
+                        dateDisplay += ` → ${new Date(service.endDate).toLocaleDateString('fr-FR')} (Tournée)`;
+                    }
+                    
+                    let timeDisplay = '';
+                    if (service.departureTime) {
+                        timeDisplay = `🕕 ${service.departureTime}`;
+                        if (service.returnTime) {
+                            timeDisplay += ` → ${service.returnTime}`;
+                        }
+                        timeDisplay += ' • ';
+                    } else if (service.time) {
+                        timeDisplay = `🕕 ${service.time} • `;
+                    }
+                    
+                    const deleteButton = isAdmin ? `
+                        <button class="btn btn-primary btn-small" onclick="editService(${service.id})" type="button">
+                            ✏️ Modifier
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="removeService(${service.id})" type="button">
+                            Supprimer
+                        </button>
+                    ` : '';
+                    
+                    return `
+                        <li class="list-item">
+                            <div>
+                                <strong>${service.name}</strong><br>
+                                <small>
+                                    📅 ${dateDisplay} • 
+                                    ${timeDisplay}
+                                    ${serviceTypeName} • ${service.points} pts
+                                </small><br>
+                                <small>👥 ${participantNames}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-success btn-small" onclick="exportServiceToICS(${service.id})" type="button">
+                                    📅 Export ICS
+                                </button>
+                                ${deleteButton}
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            }
+        }
+
+        function updateParticipantCheckboxes() {
+            const container = document.getElementById('participantCheckboxes');
+            if (!container) return;
+            
+            if (musicians.length === 0) {
+                container.innerHTML = '<p style="color: #6c757d;">Ajoutez d\'abord des musiciens</p>';
+            } else {
+                container.innerHTML = musicians.map(musician => `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="participant_${musician.id}" value="${musician.id}">
+                        <label for="participant_${musician.id}">${musician.name}</label>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateServiceTypeSelect() {
+            const select = document.getElementById('serviceType');
+            if (!select) return;
+            
+            select.innerHTML = Object.entries(settings.serviceTypes).map(([key, config]) => 
+                `<option value="${key}">${config.name}</option>`
+            ).join('');
+        }
+
+        function updateServiceTypesConfigUI() {
+            const container = document.getElementById('serviceTypesConfig');
+            if (!container) return;
+            
+            container.innerHTML = Object.entries(settings.serviceTypes).map(([key, config]) => `
+                <div class="service-type-config">
+                    <label>${config.name}</label>
+                    <input type="number" value="${config.points}" min="0" data-points="${key}">
+                    <span>points</span>
+                    <button class="btn btn-danger btn-small" onclick="removeServiceType('${key}')" type="button">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function addServiceType() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            const name = document.getElementById('newServiceTypeName').value.trim();
+            const points = parseInt(document.getElementById('newServiceTypePoints').value);
+            
+            if (!name || isNaN(points)) {
+                showAlert('Saisissez un nom et un nombre de points valides', 'danger');
+                return;
+            }
+            
+            const key = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            
+            if (settings.serviceTypes[key]) {
+                showAlert('Un type avec ce nom existe déjà', 'danger');
+                return;
+            }
+            
+            settings.serviceTypes[key] = { name: name, points: points };
+            
+            document.getElementById('newServiceTypeName').value = '';
+            document.getElementById('newServiceTypePoints').value = '';
+            
+            updateServiceTypeSelect();
+            updateServiceTypesConfigUI();
+            autoSave();
+            showAlert(`Type "${name}" ajouté !`, 'success');
+        }
+
+        function removeServiceType(key) {
+            if (!isAdmin) return;
+            const config = settings.serviceTypes[key];
+            if (!config) return;
+            
+            if (confirm(`Supprimer le type "${config.name}" ?`)) {
+                delete settings.serviceTypes[key];
+                updateServiceTypeSelect();
+                updateServiceTypesConfigUI();
+                autoSave();
+                showAlert(`Type "${config.name}" supprimé`, 'success');
+            }
+        }
+
+        function saveServiceTypesConfig() {
+            if (!isAdmin) {
+                showAlert('Connectez-vous en admin', 'danger');
+                return;
+            }
+            
+            document.querySelectorAll('[data-points]').forEach(input => {
+                const key = input.dataset.points;
+                const points = parseInt(input.value);
+                if (settings.serviceTypes[key] && !isNaN(points)) {
+                    settings.serviceTypes[key].points = points;
+                }
+            });
+            
+            autoSave();
+            updateServicesList();
+            showAlert('Configuration sauvegardée !', 'success');
+        }
+
+        function autoSave() {
+            try {
+                localStorage.setItem('tournesmusiciens_data', JSON.stringify({
+                    musicians, services, settings
+                }));
+            } catch (e) {
+                console.log('Sauvegarde impossible');
+            }
+        }
+
+        function loadData() {
+            try {
+                const data = localStorage.getItem('tournesmusiciens_data');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    musicians = parsed.musicians || [];
+                    services = parsed.services || [];
+                    if (parsed.settings) {
+                        settings = {...settings, ...parsed.settings};
+                    }
+                }
+            } catch (e) {
+                console.log('Chargement impossible');
+            }
+        }
+
+        function initializeDates() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 8, 1);
+            
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            if (startDateInput) startDateInput.value = startOfYear.toISOString().split('T')[0];
+            if (endDateInput) endDateInput.value = now.toISOString().split('T')[0];
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} fade-in`;
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+                max-width: 400px;
+                background: #d4edda;
+                color: #155724;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            alertDiv.innerHTML = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
